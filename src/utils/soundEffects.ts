@@ -5,39 +5,45 @@ class SoundEffects {
   private enabled: boolean = true;
   private initialized: boolean = false;
 
-  private getAudioContext(): AudioContext {
-    if (!this.audioContext) {
+  // Lazy initialization - only create AudioContext on first user interaction
+  private getAudioContext(): AudioContext | null {
+    if (!this.audioContext && this.enabled) {
       try {
         this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       } catch (error) {
         console.warn('Web Audio API not supported:', error);
         this.enabled = false;
+        return null;
       }
     }
-    return this.audioContext!;
+    return this.audioContext;
   }
 
   // Initialize audio context on first user interaction
-  private initialize() {
+  private async initialize() {
     if (this.initialized || !this.enabled) return;
     
     try {
       const ctx = this.getAudioContext();
-      if (ctx && ctx.state === 'suspended') {
-        ctx.resume();
+      if (ctx) {
+        if (ctx.state === 'suspended') {
+          await ctx.resume();
+        }
+        this.initialized = true;
       }
-      this.initialized = true;
     } catch (error) {
       console.warn('Audio initialization failed:', error);
       this.enabled = false;
     }
   }
 
-  private playTone(frequency: number, duration: number, volume: number = 0.1, type: OscillatorType = 'sine') {
+  private async playTone(frequency: number, duration: number, volume: number = 0.1, type: OscillatorType = 'sine') {
     if (!this.enabled) return;
 
     try {
-      this.initialize();
+      // Initialize on first call
+      await this.initialize();
+      
       const ctx = this.getAudioContext();
       
       if (!ctx || ctx.state === 'suspended') {
@@ -59,7 +65,7 @@ class SoundEffects {
       oscillator.start(ctx.currentTime);
       oscillator.stop(ctx.currentTime + duration);
     } catch (error) {
-      console.warn('Audio playback failed:', error);
+      // Silently fail - don't spam console on every sound attempt
     }
   }
 
