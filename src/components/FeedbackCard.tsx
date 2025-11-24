@@ -2,6 +2,8 @@ import { motion } from 'motion/react';
 import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Flame } from 'lucide-react';
 import { Button } from './ui/button';
 import { constructionTypes } from '../data/constructionTypes';
+import { soundEffects } from '../utils/soundEffects';
+import { useEffect } from 'react';
 
 interface FeedbackCardProps {
   isCorrect: boolean;
@@ -25,6 +27,30 @@ export function FeedbackCard({
   const feedbackText = isCorrect 
     ? constructionTypes[correctAnswer].correctFeedback
     : constructionTypes[correctAnswer].incorrectFeedback;
+
+  // Play sound when feedback is shown
+  useEffect(() => {
+    if (isCorrect) {
+      soundEffects.correct();
+    } else {
+      soundEffects.incorrect();
+    }
+    
+    // Send message to parent window when final question feedback is shown
+    if (totalAnswered === 5) {
+      window.parent.postMessage({ type: 'complete' }, '*');
+    }
+  }, [isCorrect, totalAnswered]);
+
+  const handleNext = () => {
+    soundEffects.next();
+    onNext();
+  };
+
+  const handleReset = () => {
+    soundEffects.reset();
+    onReset();
+  };
 
   return (
     <motion.div
@@ -53,7 +79,7 @@ export function FeedbackCard({
             <p className="text-slate-400 text-sm">Score</p>
           </div>
           <Button
-            onClick={onReset}
+            onClick={handleReset}
             variant="outline"
             size="icon"
             className="bg-slate-800 border-slate-700 hover:bg-slate-700 text-slate-300"
@@ -113,7 +139,7 @@ export function FeedbackCard({
         transition={{ delay: 0.3 }}
       >
         <Button
-          onClick={onNext}
+          onClick={handleNext}
           className="w-full bg-[#c74542] hover:bg-[#d95550] text-white h-14 rounded-xl group text-lg"
           size="lg"
         >

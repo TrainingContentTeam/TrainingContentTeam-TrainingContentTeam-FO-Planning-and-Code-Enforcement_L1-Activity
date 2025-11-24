@@ -1,6 +1,8 @@
 import { motion } from 'motion/react';
 import { Trophy, RotateCcw, Flame, Award, Target } from 'lucide-react';
 import { Button } from './ui/button';
+import { soundEffects } from '../utils/soundEffects';
+import { useEffect } from 'react';
 
 interface CompletionScreenProps {
   score: number;
@@ -11,6 +13,11 @@ interface CompletionScreenProps {
 export function CompletionScreen({ score, total, onReset }: CompletionScreenProps) {
   const percentage = (score / total) * 100;
   
+  // Play completion sound when screen loads
+  useEffect(() => {
+    soundEffects.complete();
+  }, []);
+  
   const getPerformanceMessage = () => {
     if (percentage === 100) return { title: 'Perfect Score!', message: 'Outstanding knowledge of building construction types.', color: 'text-emerald-400' };
     if (percentage >= 80) return { title: 'Excellent Work!', message: 'You have a strong understanding of fire-resistive construction.', color: 'text-emerald-400' };
@@ -19,6 +26,11 @@ export function CompletionScreen({ score, total, onReset }: CompletionScreenProp
   };
 
   const performance = getPerformanceMessage();
+
+  const handleReset = () => {
+    soundEffects.reset();
+    onReset();
+  };
 
   return (
     <motion.div
@@ -73,7 +85,7 @@ export function CompletionScreen({ score, total, onReset }: CompletionScreenProp
           >
             <Target className="w-6 h-6 text-[#d95550] mx-auto mb-2" />
             <div className="text-3xl text-white mb-1">{score}</div>
-            <p className="text-slate-400 text-sm">Correct</p>
+            <p className="text-slate-400 text-base">Correct</p>
           </motion.div>
           
           <motion.div
@@ -84,7 +96,7 @@ export function CompletionScreen({ score, total, onReset }: CompletionScreenProp
           >
             <Award className="w-6 h-6 text-[#d95550] mx-auto mb-2" />
             <div className="text-3xl text-white mb-1">{percentage}%</div>
-            <p className="text-slate-400 text-sm">Score</p>
+            <p className="text-slate-400 text-base">Score</p>
           </motion.div>
           
           <motion.div
@@ -95,7 +107,7 @@ export function CompletionScreen({ score, total, onReset }: CompletionScreenProp
           >
             <Flame className="w-6 h-6 text-[#d95550] mx-auto mb-2" />
             <div className="text-3xl text-white mb-1">{total}</div>
-            <p className="text-slate-400 text-sm">Total</p>
+            <p className="text-slate-400 text-base">Total</p>
           </motion.div>
         </div>
 
@@ -123,8 +135,8 @@ export function CompletionScreen({ score, total, onReset }: CompletionScreenProp
         transition={{ delay: 0.8 }}
       >
         <Button
-          onClick={onReset}
-          className="w-full bg-[#c74542] hover:bg-[#d95550] text-white h-14 rounded-xl group"
+          onClick={handleReset}
+          className="w-full bg-[#c74542] hover:bg-[#d95550] text-white h-14 rounded-xl group text-lg"
           size="lg"
         >
           <RotateCcw className="mr-2 w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />

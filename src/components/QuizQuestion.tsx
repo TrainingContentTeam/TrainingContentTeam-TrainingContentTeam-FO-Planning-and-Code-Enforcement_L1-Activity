@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { Flame, RotateCcw } from 'lucide-react';
 import { Button } from './ui/button';
 import { constructionTypes } from '../data/constructionTypes';
+import { soundEffects } from '../utils/soundEffects';
 
 interface QuizQuestionProps {
   question: {
@@ -16,6 +17,16 @@ interface QuizQuestionProps {
 }
 
 export function QuizQuestion({ question, score, totalAnswered, onAnswer, onReset }: QuizQuestionProps) {
+  const handleAnswer = (answer: string) => {
+    soundEffects.click();
+    onAnswer(answer);
+  };
+
+  const handleReset = () => {
+    soundEffects.reset();
+    onReset();
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -43,7 +54,7 @@ export function QuizQuestion({ question, score, totalAnswered, onAnswer, onReset
             <p className="text-slate-400 text-sm">Score</p>
           </div>
           <Button
-            onClick={onReset}
+            onClick={handleReset}
             variant="outline"
             size="icon"
             className="bg-slate-800 border-slate-700 hover:bg-slate-700 text-slate-300"
@@ -79,7 +90,8 @@ export function QuizQuestion({ question, score, totalAnswered, onAnswer, onReset
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
-            onClick={() => onAnswer(option)}
+            onClick={() => handleAnswer(option)}
+            onMouseEnter={() => soundEffects.hover()}
             className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 text-left hover:bg-slate-700/50 hover:border-[#c74542]/50 transition-all duration-300 group"
           >
             <div className="flex items-center gap-4">
