@@ -4,6 +4,7 @@
   import path from 'path';
 
   export default defineConfig({
+   base: '/TrainingContentTeam-TrainingContentTeam-FO-Planning-and-Code-Enforcement_L1-Activity/',
     plugins: [react()],
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
