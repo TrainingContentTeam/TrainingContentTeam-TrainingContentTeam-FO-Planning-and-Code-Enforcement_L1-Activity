@@ -16,6 +16,11 @@ export function CompletionScreen({ score, total, onReset }: CompletionScreenProp
   // Play completion sound when screen loads
   useEffect(() => {
     soundEffects.complete();
+    
+    // Send message to parent window when results screen appears
+    console.log('Quiz completed! Sending postMessage to parent window...');
+    window.parent.postMessage({ type: 'complete' }, '*');
+    console.log('PostMessage sent: { type: "complete" }');
   }, []);
   
   const getPerformanceMessage = () => {

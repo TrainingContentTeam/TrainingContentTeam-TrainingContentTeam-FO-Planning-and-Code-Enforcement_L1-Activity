@@ -35,12 +35,7 @@ export function FeedbackCard({
     } else {
       soundEffects.incorrect();
     }
-    
-    // Send message to parent window when final question feedback is shown
-    if (totalAnswered === 5) {
-      window.parent.postMessage({ type: 'complete' }, '*');
-    }
-  }, [isCorrect, totalAnswered]);
+  }, [isCorrect]);
 
   const handleNext = () => {
     soundEffects.next();
