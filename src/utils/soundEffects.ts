@@ -3,19 +3,47 @@
 class SoundEffects {
   private audioContext: AudioContext | null = null;
   private enabled: boolean = true;
+  private initialized: boolean = false;
 
   private getAudioContext(): AudioContext {
     if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      try {
+        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      } catch (error) {
+        console.warn('Web Audio API not supported:', error);
+        this.enabled = false;
+      }
     }
-    return this.audioContext;
+    return this.audioContext!;
+  }
+
+  // Initialize audio context on first user interaction
+  private initialize() {
+    if (this.initialized || !this.enabled) return;
+    
+    try {
+      const ctx = this.getAudioContext();
+      if (ctx && ctx.state === 'suspended') {
+        ctx.resume();
+      }
+      this.initialized = true;
+    } catch (error) {
+      console.warn('Audio initialization failed:', error);
+      this.enabled = false;
+    }
   }
 
   private playTone(frequency: number, duration: number, volume: number = 0.1, type: OscillatorType = 'sine') {
     if (!this.enabled) return;
 
     try {
+      this.initialize();
       const ctx = this.getAudioContext();
+      
+      if (!ctx || ctx.state === 'suspended') {
+        return;
+      }
+
       const oscillator = ctx.createOscillator();
       const gainNode = ctx.createGain();
 
@@ -47,9 +75,6 @@ class SoundEffects {
 
   // Positive feedback for correct answers
   correct() {
-    const ctx = this.getAudioContext();
-    const now = ctx.currentTime;
-    
     // Play a pleasant ascending chord
     this.playTone(523.25, 0.15, 0.12, 'sine'); // C
     setTimeout(() => this.playTone(659.25, 0.15, 0.1, 'sine'), 80); // E
@@ -64,8 +89,6 @@ class SoundEffects {
 
   // Completion/success sound
   complete() {
-    const ctx = this.getAudioContext();
-    
     // Triumphant ascending scale
     const notes = [523.25, 587.33, 659.25, 783.99]; // C, D, E, G
     notes.forEach((freq, index) => {
