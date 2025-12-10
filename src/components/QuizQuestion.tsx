@@ -51,7 +51,7 @@ export function QuizQuestion({ question, score, totalAnswered, onAnswer, onReset
               <span className="text-3xl">{score}</span>
               <span className="text-slate-400">/{totalAnswered}</span>
             </div>
-            <p className="text-slate-400 text-sm">Score</p>
+            <p className="text-slate-400 text-sm">Question</p>
           </div>
           <Button
             onClick={handleReset}
